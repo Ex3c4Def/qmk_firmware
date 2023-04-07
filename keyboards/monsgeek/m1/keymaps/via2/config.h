@@ -19,11 +19,12 @@
 /* encoder */
 #ifdef ENCODER_MAP_KEY_DELAY
 	#undef ENCODER_MAP_KEY_DELAY 
+	#warning ENCODER_MAP_KEY_DELAY
 #endif
 #ifdef ENCODER_RESOLUTION
 	#undef ENCODER_RESOLUTION
 #endif
-#define ENCODER_RESOLUTION 4
+#define ENCODER_RESOLUTION 2
 
 
 // USE_SECOND_COLOR used for enabling additional 2nd color functionality
