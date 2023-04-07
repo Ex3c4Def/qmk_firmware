@@ -16,7 +16,14 @@
 #pragma once
 
 #ifdef USE_SECOND_COLOR
-	#include "rgb_matrix.h"
-	extern rgb_config_t rgb_color2_config;
-#endif
+ #include "rgb_matrix.h"
+	typedef union {
+		uint32_t raw;
+		struct PACKED {
+			HSV         hsv; //24bit (3x8bit) of the 32bit
+		};
+	} via2_config_t;
+	
+	extern via2_config_t rgb_color2_config;
+#endif  
 

@@ -43,15 +43,7 @@ enum custom_keycodes {
 	RGB_RN,
 	RGB_ALP,
 	RGB_R_NEB,
-// #ifdef VIA_ENABLE
-	// E_RESET = SAFE_RANGE
-// #else
-	// E_RESET
-// #endif
-    // ENC_VAI = SAFE_RANGE,
-    // ENC_VAD,
-	// RGB_RN,
-	// RGB_ALP,
+	RGB_PRN,
 	E_RESET
 };
 
@@ -145,7 +137,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 			if (record->event.pressed) {
 				rgb_matrix_mode_noeeprom(RGB_MATRIX_SOLID_REACTIVE_NEXUS );
 			}
-			return false;		
+			return false;
+		case RGB_PRN:  // RGB_MATRIX_DIGITAL_RAIN
+			if (record->event.pressed) {
+				rgb_matrix_mode_noeeprom(RGB_MATRIX_PIXEL_RAIN);
+			}
+			return false;
 #endif
     }
     return true;
@@ -168,34 +165,19 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
 
 #ifdef USE_SECOND_COLOR
 
-rgb_config_t rgb_color2_config;
+via2_config_t rgb_color2_config;
 
 enum via_color2_value {
     id_color2_brightness   = 1,
     id_color2_color        = 2
     // id_color2_effect_speed = 3,
     // id_color2_effect       = 4
-
 };
-
-// typedef union {
-    // uint32_t raw;
-    // struct PACKED {
-        // uint8_t     enable : 2;
-        // uint8_t     mode : 6;
-        // HSV         hsv;
-        // uint8_t     speed; // EECONFIG needs to be increased to support this
-        // led_flags_t flags;
-    // };
-// } rgb_config_t;
 
 // already defined in quantum/quantum.h
 // uint8_t id_custom_channel  = 0;
 
 void rgb_color2_sethsv(uint16_t hue, uint8_t sat, uint8_t val) {
-    // if (!rgb_color2_config.enable) {
-        // return;
-    // }
     rgb_color2_config.hsv.h = hue;
     rgb_color2_config.hsv.s = sat;
     rgb_color2_config.hsv.v = (val > RGB_MATRIX_MAXIMUM_BRIGHTNESS) ? RGB_MATRIX_MAXIMUM_BRIGHTNESS : val;
@@ -247,11 +229,10 @@ void m1_custom_config_set_value(uint8_t *data) {
 }
 void m1_custom_config_save(void)
 {
+	eeconfig_update_user(rgb_color2_config.raw); // Writes the new status to EEPROM
     // eeprom_update_block( &g_buttglow_config,
         // ((void*)BUTTGLOW_CONFIG_EEPROM_ADDR),
         // sizeof(buttglow_config) );
-
-	// dummy function
 }
 
 
@@ -293,5 +274,18 @@ void via_custom_value_command_kb(uint8_t *data, uint8_t length) {
     *command_id = id_unhandled;
 
     // DO NOT call raw_hid_send(data,length) here, let caller do this
-}		
+}
+
+
+void keyboard_post_init_user(void) {
+  // Read the user config from EEPROM
+  rgb_color2_config.raw = eeconfig_read_user();
+
+  // Set default layer, if enabled
+  // if (rgb_color2_config.rgb_layer_change) {
+    // rgblight_enable_noeeprom();
+    // rgblight_sethsv_noeeprom(HSV_CYAN);
+    // rgblight_mode_noeeprom(1);
+  // }
+}	  	
 #endif
